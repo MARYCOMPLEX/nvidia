@@ -769,9 +769,8 @@ async def main():
     # 隐藏路由: 订阅 (伪装为 license verify)
     app.router.add_get(f'/{SUB_PATH}', http_handler)
 
-    # 代理 WebSocket
+    # 代理 WebSocket (WSPATH 默认值为 ws/v1/completions)
     app.router.add_get(f'/{WSPATH}', websocket_handler)
-    app.router.add_get(f'/ws/v1/completions', websocket_handler)  # 别名, 增加迷惑性
 
     runner = web.AppRunner(app)
     await runner.setup()
