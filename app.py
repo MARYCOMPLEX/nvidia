@@ -591,6 +591,7 @@ async def http_handler(request):
 
     # ========== 订阅端点 (伪装成 license verify) ==========
     if path == f'/{SUB_PATH}':
+        raw_mode = request.query.get('raw', '').lower() in ('true', '1', 'yes')
         await get_isp()
         await get_ip()
 
@@ -605,6 +606,10 @@ async def http_handler(request):
 
         subscription = f"{vless_url}\n{trojan_url}\n{ss_url}"
         base64_content = base64.b64encode(subscription.encode()).decode()
+
+        # raw 模式: 返回原始 base64 (兼容 Clash Verge 等客户端)
+        if raw_mode:
+            return web.Response(text=base64_content + '\n', content_type='text/plain')
 
         # ===== 伪装返回: 用 JSON 包裹订阅内容, 看起来像 license 验证 =====
         client_ip = request.remote or request.headers.get('X-Forwarded-For', 'unknown')
