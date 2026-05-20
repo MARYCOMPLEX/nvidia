@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaAI - Next-Generation AI Inference API</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif; }
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a2e;
+            --border: #1e1e30;
+            --text: #e4e4e7;
+            --text-dim: #71717a;
+            --text-bright: #ffffff;
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.15);
+            --accent-2: #06b6d4;
+            --green: #10b981;
+            --orange: #f59e0b;
+            --red: #ef4444;
+            --gradient: linear-gradient(135deg, #8b5cf6, #06b6d4);
+        }
+        body { background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+        ::selection { background: var(--accent); color: white; }
+
+        /* Nav */
+        nav {
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-inner {
+            max-width: 1200px; margin: 0 auto; padding: 0 24px;
+            display: flex; justify-content: space-between; align-items: center; height: 64px;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: 700; color: var(--text-bright); text-decoration: none; }
+        .logo i { font-size: 1.6rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--text-bright); }
+        .nav-cta {
+            background: var(--gradient); color: white !important; padding: 8px 20px;
+            border-radius: 8px; font-weight: 600; font-size: 0.85rem !important;
+        }
+        .mobile-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+
+        /* Hero */
+        .hero {
+            max-width: 1000px; margin: 0 auto; padding: 100px 24px 80px;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-block; padding: 6px 16px; border-radius: 100px;
+            background: var(--accent-glow); border: 1px solid rgba(139,92,246,0.3);
+            color: var(--accent); font-size: 0.8rem; font-weight: 600; margin-bottom: 24px;
+        }
+        .hero h1 {
+            font-size: 4rem; font-weight: 800; line-height: 1.1; color: var(--text-bright);
+            margin-bottom: 20px; letter-spacing: -0.03em;
+        }
+        .hero h1 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.2rem; color: var(--text-dim); max-width: 650px; margin: 0 auto 40px; }
+        .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--gradient); color: white; padding: 14px 32px;
+            border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
+        .btn-secondary {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--bg-card); color: var(--text); padding: 14px 32px;
+            border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 1rem;
+            border: 1px solid var(--border); transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+
+        /* Stats bar */
+        .stats-bar {
+            max-width: 1000px; margin: -20px auto 60px; padding: 0 24px;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+        }
+        .stat-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px; text-align: center;
+        }
+        .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--text-bright); }
+        .stat-card .label { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+        .stat-card .num.purple { color: var(--accent); }
+        .stat-card .num.cyan { color: var(--accent-2); }
+        .stat-card .num.green { color: var(--green); }
+
+        /* Sections common */
+        section { max-width: 1200px; margin: 0 auto; padding: 80px 24px; }
+        .section-label {
+            display: inline-block; padding: 4px 12px; border-radius: 100px;
+            background: var(--accent-glow); color: var(--accent);
+            font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+        .section-title { font-size: 2.5rem; font-weight: 800; color: var(--text-bright); margin-bottom: 16px; letter-spacing: -0.02em; }
+        .section-subtitle { color: var(--text-dim); font-size: 1.05rem; max-width: 600px; margin-bottom: 48px; }
+
+        /* Models */
+        .models-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .model-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; transition: border-color 0.2s, background 0.2s;
+        }
+        .model-card:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+        .model-card .model-name { font-weight: 700; color: var(--text-bright); font-size: 1.05rem; font-family: 'SF Mono', 'Fira Code', monospace; }
+        .model-card .model-meta { font-size: 0.8rem; color: var(--text-dim); margin-top: 8px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .model-card .model-meta span { display: flex; align-items: center; gap: 4px; }
+        .model-card .badge {
+            display: inline-block; font-size: 0.7rem; padding: 2px 8px; border-radius: 100px;
+            font-weight: 600; margin-top: 10px;
+        }
+        .badge.green { background: rgba(16,185,129,0.15); color: var(--green); }
+        .badge.orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+        .badge.purple { background: var(--accent-glow); color: var(--accent); }
+
+        /* Code example */
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; overflow: hidden; margin-bottom: 24px;
+        }
+        .code-tabs {
+            display: flex; border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+        }
+        .code-tabs button {
+            padding: 12px 20px; background: none; border: none; color: var(--text-dim);
+            font-size: 0.85rem; cursor: pointer; border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s; font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        .code-tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .code-tabs button:hover { color: var(--text); }
+        .code-body { padding: 20px; overflow-x: auto; }
+        .code-body pre { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.7; color: var(--text-dim); }
+        .code-body .kw { color: var(--accent); }
+        .code-body .str { color: var(--green); }
+        .code-body .cm { color: #52525b; font-style: italic; }
+        .code-body .fn { color: var(--accent-2); }
+
+        /* Pricing */
+        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .pricing-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 32px; transition: border-color 0.2s, transform 0.2s;
+            position: relative;
+        }
+        .pricing-card.featured { border-color: var(--accent); background: rgba(139,92,246,0.05); }
+        .pricing-card.featured::before {
+            content: 'Most Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: var(--gradient); color: white; padding: 4px 16px; border-radius: 100px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .pricing-card:hover { transform: translateY(-4px); }
+        .pricing-card h3 { font-size: 1.3rem; color: var(--text-bright); margin-bottom: 8px; }
+        .pricing-card .price { font-size: 2.5rem; font-weight: 800; color: var(--text-bright); margin-bottom: 4px; }
+        .pricing-card .price span { font-size: 1rem; font-weight: 400; color: var(--text-dim); }
+        .pricing-card .desc { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px; }
+        .pricing-card ul { list-style: none; margin-bottom: 24px; }
+        .pricing-card ul li { padding: 6px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+        .pricing-card ul li i { color: var(--green); font-size: 0.8rem; }
+        .pricing-card .btn-pricing {
+            display: block; text-align: center; padding: 12px; border-radius: 8px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            border: 1px solid var(--border); color: var(--text);
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .pricing-card .btn-pricing:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+        .pricing-card.featured .btn-pricing { background: var(--gradient); color: white; border: none; }
+        .pricing-card.featured .btn-pricing:hover { opacity: 0.9; }
+
+        /* Status */
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+        .status-item {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .status-item .name { font-size: 0.9rem; font-family: 'SF Mono', monospace; }
+        .status-item .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .status-dot.green { background: var(--green); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+        .status-dot.orange { background: var(--orange); }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border); padding: 48px 24px 24px;
+            max-width: 1200px; margin: 0 auto;
+        }
+        .footer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-bottom: 32px; }
+        .footer-col h4 { color: var(--text-bright); font-size: 0.9rem; margin-bottom: 16px; }
+        .footer-col a { display: block; color: var(--text-dim); text-decoration: none; font-size: 0.85rem; padding: 4px 0; transition: color 0.2s; }
+        .footer-col a:hover { color: var(--text); }
+        .footer-bottom { text-align: center; padding-top: 24px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: repeat(2, 1fr); }
+            .nav-links { display: none; }
+            .mobile-toggle { display: block; }
+            .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; width: 100%;
+                background: var(--bg); border-bottom: 1px solid var(--border); padding: 16px 24px; gap: 16px; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-inner">
+            <a href="/" class="logo"><i class="fas fa-sparkles"></i> NovaAI</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#models">Models</a></li>
+                <li><a href="#docs">Docs</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#status">Status</a></li>
+                <li><a href="#" class="nav-cta"><i class="fas fa-key"></i> Dashboard</a></li>
+            </ul>
+            <button class="mobile-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge"><i class="fas fa-check-circle"></i> 99.9% Uptime · 10M+ requests/day</div>
+        <h1>Build with the <span>World's Fastest</span> AI API</h1>
+        <p>One API for GPT-4o, Claude 3, DALL·E 3, and more. Streaming, vision, embeddings — everything you need to build intelligent applications.</p>
+        <div class="hero-btns">
+            <a href="#docs" class="btn-primary"><i class="fas fa-terminal"></i> Quick Start</a>
+            <a href="#pricing" class="btn-secondary"><i class="fas fa-chart-bar"></i> View Pricing</a>
+        </div>
+    </section>
+
+    <div class="stats-bar">
+        <div class="stat-card"><div class="num purple" id="statRequests">10.2M</div><div class="label">Requests / Day</div></div>
+        <div class="stat-card"><div class="num green">99.9%</div><div class="label">Uptime SLA</div></div>
+        <div class="stat-card"><div class="num cyan" id="statModels">8</div><div class="label">AI Models</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--text-bright)">50ms</div><div class="label">Avg Latency</div></div>
+    </div>
+
+    <!-- Models -->
+    <section id="models">
+        <div class="section-label">Models</div>
+        <h2 class="section-title">State-of-the-Art AI Models</h2>
+        <p class="section-subtitle">Access the most powerful language and image models through a single, unified API.</p>
+        <div class="models-grid">
+            <div class="model-card">
+                <div class="model-name">gpt-4o</div>
+                <div class="model-meta"><span><i class="far fa-clock"></i> 8K context</span><span><i class="fas fa-bolt"></i> 10K rpm</span></div>
+                <span class="badge green">Active</span>
+            </div>
+            <div class="model-card">
+                <div class="model-name">gpt-4o-mini</div>
+                <div class="model-meta"><span><i class="far fa-clock"></i> 16K context</span><span><i class="fas fa-bolt"></i> 30K rpm</span></div>
+                <span class="badge green">Active</span>
+            </div>
+            <div class="model-card">
+                <div class="model-name">claude-3-opus</div>
+                <div class="model-meta"><span><i class="far fa-clock"></i> 200K context</span><span><i class="fas fa-bolt"></i> 5K rpm</span></div>
+                <span class="badge green">Active</span>
+            </div>
+            <div class="model-card">
+                <div class="model-name">claude-3-sonnet</div>
+                <div class="model-meta"><span><i class="far fa-clock"></i> 200K context</span><span><i class="fas fa-bolt"></i> 8K rpm</span></div>
+                <span class="badge green">Active</span>
+            </div>
+            <div class="model-card">
+                <div class="model-name">gpt-4-turbo</div>
+                <div class="model-meta"><span><i class="far fa-clock"></i> 128K context</span><span><i class="fas fa-bolt"></i> 5K rpm</span></div>
+                <span class="badge orange">Beta</span>
+            </div>
+            <div class="model-card">
+                <div class="model-name">dall-e-3</div>
+                <div class="model-meta"><span><i class="fas fa-image"></i> 1024×1024</span><span><i class="fas fa-bolt"></i> 2K rpm</span></div>
+                <span class="badge green">Active</span>
+            </div>
+            <div class="model-card">
+                <div class="model-name">text-embedding-3</div>
+                <div class="model-meta"><span><i class="fas fa-vector-square"></i> 3072 dims</span><span><i class="fas fa-bolt"></i> 20K rpm</span></div>
+                <span class="badge green">Active</span>
+            </div>
+            <div class="model-card">
+                <div class="model-name">gpt-3.5-turbo</div>
+                <div class="model-meta"><span><i class="far fa-clock"></i> 16K context</span><span><i class="fas fa-bolt"></i> 50K rpm</span></div>
+                <span class="badge purple">Legacy</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Docs / Code Example -->
+    <section id="docs">
+        <div class="section-label">Quick Start</div>
+        <h2 class="section-title">Get Started in 30 Seconds</h2>
+        <p class="section-subtitle">Works with any OpenAI-compatible client. Just change the base URL and API key.</p>
+
+        <div class="code-block">
+            <div class="code-tabs">
+                <button class="active" onclick="switchCode(this, 'curl')">cURL</button>
+                <button onclick="switchCode(this, 'python')">Python</button>
+                <button onclick="switchCode(this, 'node')">Node.js</button>
+            </div>
+            <div class="code-body">
+                <pre id="codeCurl"><span class="kw">curl</span> https://api.novaai.example.com/v1/chat/completions \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -H <span class="str">"Authorization: Bearer sk-your-api-key"</span> \
+  -d <span class="str">'{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "Hello!"}],
+    "stream": true
+  }'</span></pre>
+                <pre id="codePython" style="display:none"><span class="kw">import</span> openai
+client = openai.OpenAI(
+    base_url=<span class="str">"https://api.novaai.example.com/v1"</span>,
+    api_key=<span class="str">"sk-your-api-key"</span>
+)
+stream = client.chat.completions.create(
+    model=<span class="str">"gpt-4o"</span>,
+    messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"Hello!"</span>}],
+    stream=<span class="str">True</span>
+)
+<span class="kw">for</span> chunk <span class="kw">in</span> stream:
+    <span class="fn">print</span>(chunk.choices[0].delta.content, end=<span class="str">""</span>)</pre>
+                <pre id="codeNode" style="display:none"><span class="kw">const</span> OpenAI = <span class="fn">require</span>(<span class="str">'openai'</span>);
+<span class="kw">const</span> client = <span class="kw">new</span> OpenAI({
+  baseURL: <span class="str">'https://api.novaai.example.com/v1'</span>,
+  apiKey: <span class="str">'sk-your-api-key'</span>
+});
+<span class="kw">const</span> stream = <span class="kw">await</span> client.chat.completions.create({
+  model: <span class="str">'gpt-4o'</span>,
+  messages: [{ role: <span class="str">'user'</span>, content: <span class="str">'Hello!'</span> }],
+  stream: <span class="kw">true</span>,
+});
+<span class="kw">for</span> <span class="kw">await</span> (<span class="kw">const</span> chunk <span class="kw">of</span> stream) {
+  process.stdout.<span class="fn">write</span>(chunk.choices[0]?.delta?.content || <span class="str">''</span>);
+}</pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing">
+        <div class="section-label">Pricing</div>
+        <h2 class="section-title">Simple, Transparent Pricing</h2>
+        <p class="section-subtitle">Pay only for what you use with no hidden fees. All plans include access to every model.</p>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Hobby</h3>
+                <div class="price">$9<span>/mo</span></div>
+                <div class="desc">For personal projects and experimentation</div>
+                <ul>
+                    <li><i class="fas fa-check"></i> 100K tokens / month</li>
+                    <li><i class="fas fa-check"></i> 5 requests / minute</li>
+                    <li><i class="fas fa-check"></i> Community support</li>
+                    <li><i class="fas fa-check"></i> Access to all models</li>
+                </ul>
+                <a href="#" class="btn-pricing">Get Started</a>
+            </div>
+            <div class="pricing-card featured">
+                <h3>Pro</h3>
+                <div class="price">$49<span>/mo</span></div>
+                <div class="desc">For production applications and startups</div>
+                <ul>
+                    <li><i class="fas fa-check"></i> 1M tokens / month</li>
+                    <li><i class="fas fa-check"></i> 100 requests / minute</li>
+                    <li><i class="fas fa-check"></i> Priority support</li>
+                    <li><i class="fas fa-check"></i> Streaming support</li>
+                    <li><i class="fas fa-check"></i> API key management</li>
+                </ul>
+                <a href="#" class="btn-pricing">Get Started</a>
+            </div>
+            <div class="pricing-card">
+                <h3>Enterprise</h3>
+                <div class="price">$299<span>/mo</span></div>
+                <div class="desc">For large-scale deployments</div>
+                <ul>
+                    <li><i class="fas fa-check"></i> 10M tokens / month</li>
+                    <li><i class="fas fa-check"></i> Unlimited requests</li>
+                    <li><i class="fas fa-check"></i> Dedicated support</li>
+                    <li><i class="fas fa-check"></i> Custom models</li>
+                    <li><i class="fas fa-check"></i> SLA guarantee</li>
+                    <li><i class="fas fa-check"></i> SSO integration</li>
+                </ul>
+                <a href="#" class="btn-pricing">Contact Sales</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Status -->
+    <section id="status">
+        <div class="section-label">System Status</div>
+        <h2 class="section-title">All Systems Operational</h2>
+        <p class="section-subtitle">Real-time status of all NovaAI services and API endpoints.</p>
+        <div class="status-grid">
+            <div class="status-item"><span class="name"><span class="status-dot green"></span> API /v1/chat/completions</span><span style="color:var(--green);font-size:0.85rem">Operational</span></div>
+            <div class="status-item"><span class="name"><span class="status-dot green"></span> API /v1/models</span><span style="color:var(--green);font-size:0.85rem">Operational</span></div>
+            <div class="status-item"><span class="name"><span class="status-dot green"></span> API /v1/images/generations</span><span style="color:var(--green);font-size:0.85rem">Operational</span></div>
+            <div class="status-item"><span class="name"><span class="status-dot green"></span> Streaming WebSocket</span><span style="color:var(--green);font-size:0.85rem">Operational</span></div>
+            <div class="status-item"><span class="name"><span class="status-dot green"></span> Authentication</span><span style="color:var(--green);font-size:0.85rem">Operational</span></div>
+            <div class="status-item"><span class="name"><span class="status-dot green"></span> Database & Storage</span><span style="color:var(--green);font-size:0.85rem">Operational</span></div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>NovaAI</h4>
+                <a href="#">About</a>
+                <a href="#">Careers</a>
+                <a href="#">Blog</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-col">
+                <h4>Products</h4>
+                <a href="#models">API</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#">Documentation</a>
+                <a href="#">Changelog</a>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <a href="#">Status</a>
+                <a href="#">API Reference</a>
+                <a href="#">SDKs & Libraries</a>
+                <a href="#">Community</a>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="#">Terms of Service</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Security</a>
+                <a href="#">GDPR</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 NovaAI, Inc. All rights reserved. Built with <i class="fas fa-heart" style="color: var(--red);"></i> for developers.
+        </div>
+    </footer>
+
+    <script>
+        function switchCode(btn, lang) {
+            const tabs = btn.parentElement.querySelectorAll('button');
+            tabs.forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            const container = btn.closest('.code-block').querySelector('.code-body');
+            container.querySelectorAll('pre').forEach(p => p.style.display = 'none');
+            const targets = { curl: 'codeCurl', python: 'codePython', node: 'codeNode' };
+            document.getElementById(targets[lang]).style.display = '';
+        }
+
+        // Counter animation
+        function animateValue(el, target, suffix) {
+            let current = 0;
+            const step = target / 60;
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) { el.textContent = target.toLocaleString() + suffix; clearInterval(timer); }
+                else { el.textContent = Math.floor(current).toLocaleString() + suffix; }
+            }, 20);
+        }
+        window.addEventListener('load', () => {
+            animateValue(document.getElementById('statRequests'), 10.2, 'M');
+        });
+    </script>
+</body>
+</html>
