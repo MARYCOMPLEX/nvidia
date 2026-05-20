@@ -1,0 +1,87 @@
+# Clash Verge 配置文件
+# 端口映射：外部 13759 → 内部 3000
+# WebSocket 路径：/ws/v1/completions
+
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: 127.0.0.1:9090
+
+# DNS 配置
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  ipv6: false
+  enhanced-mode: fake-ip
+  nameserver:
+    - 8.8.8.8
+    - 1.1.1.1
+
+proxies:
+  - name: US-VLESS
+    type: vless
+    server: 35.90.121.168
+    port: 13759
+    uuid: 11b1a76d-94a0-45e7-904d-5c21e40e0fea
+    encryption: none
+    tls: false
+    network: ws
+    ws-opts:
+      path: "/ws/v1/completions"
+      headers:
+        Host: 35.90.121.168
+    udp: true
+    skip-cert-verify: true
+
+  - name: US-Trojan
+    type: trojan
+    server: 35.90.121.168
+    port: 13759
+    password: 11b1a76d-94a0-45e7-904d-5c21e40e0fea
+    tls: false
+    network: ws
+    ws-opts:
+      path: "/ws/v1/completions"
+      headers:
+        Host: 35.90.121.168
+    udp: true
+    skip-cert-verify: true
+
+  - name: US-SS
+    type: ss
+    server: 35.90.121.168
+    port: 13759
+    cipher: none
+    password: 11b1a76d-94a0-45e7-904d-5c21e40e0fea
+    plugin: v2ray-plugin
+    plugin-opts:
+      mode: websocket
+      host: 35.90.121.168
+      path: "/ws/v1/completions"
+      tls: false
+      skip-cert-verify: true
+      mux: false
+    udp: true
+
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies:
+      - US-VLESS
+      - US-Trojan
+      - US-SS
+      - DIRECT
+
+  - name: Auto
+    type: url-test
+    proxies:
+      - US-VLESS
+      - US-Trojan
+      - US-SS
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+
+rules:
+  - MATCH,Proxy
